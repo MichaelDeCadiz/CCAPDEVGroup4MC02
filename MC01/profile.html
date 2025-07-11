@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>My Profile</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    #profile-container {
+      width: 80%;
+      margin-left: auto;
+      margin-right: auto;
+      background-color: rgb(240,240,240);
+      border: 1px solid gray;
+      border-radius: 20px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar bg-dark border-bottom border-body sticky-top bg-body-tertiary" data-bs-theme="dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html">Lab Reservation System</a>
+      <ul class="nav justify-content-end" id="yes-session">
+        <li class="nav-item">
+          <a class="nav-link" href="dashboard.html">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="lab.html">View Labs</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="profile.html">Profile</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" onclick="logout()" style="cursor: pointer;">Log Out</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <div class="container py-5" id="profile-container">
+  <h2 class="mb-4">My Profile</h2>
+
+  <div class="mb-4 text-center">
+    <img src="https://randomuser.me/api/portraits/men/60.jpg" alt="Profile Picture" class="rounded-circle mb-2" width="150" height="150">
+    <br>
+    <button class="btn btn-outline-primary btn-sm">Edit Profile Picture</button>
+  </div>
+
+  <div class="mb-3">
+    <h5>Email:</h5>
+    <p id="email">student01@dlsu.edu.ph</p>
+  </div>
+
+  <div class="mb-3">
+    <h5>Description:</h5>
+    <p>Third-year computer science student passionate about building clean, accessible web apps. Big fan of Marvel movies and cold brew coffee.</p>
+    <button class="btn btn-outline-primary btn-sm mt-2 me-2">Edit Description</button>
+  </div>
+
+  <div class="mt-5">
+    <h5 class="mb-3">Current Reservations</h5>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Lab</th>
+          <th>Date</th>
+          <th>Seat</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Lab C</td>
+          <td>Wed, Jun 19</td>
+          <td>D8</td>
+        </tr>
+        <tr>
+          <td>Lab C</td>
+          <td>Thu, Jun 20</td>
+          <td>D8</td>
+        </tr>
+        <tr>
+          <td>Lab C</td>
+          <td>Fri, Jun 21</td>
+          <td>D9</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-4">
+    <button class="btn btn-outline-danger">Delete Account</button>
+  </div>
+</div>
+  <script>
+    function logout() {
+      localStorage.removeItem('session');
+      alert('Logged out successfully.');
+      window.location.href = 'index.html';
+    }
+
+    const session = JSON.parse(localStorage.getItem('session') || '{}');
+    document.getElementById("email").innerHTML = session['email'];
+  </script>
+</body>
+</html>

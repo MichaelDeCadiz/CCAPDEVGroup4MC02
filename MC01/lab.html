@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lab Reservation</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Bootstrap JS Bundle (includes Popper for tooltips) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <link rel="stylesheet" href="assets/css/style.css"/>
+  <style>
+    #lab-container {
+      width: 80%;
+      margin-left: auto;
+      margin-right: auto;
+      background-color: rgb(240,240,240);
+      border: 1px solid gray;
+      border-radius: 20px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    const session = JSON.parse(localStorage.getItem('session') || '{}');
+    if (!session.email || session.expiry < Date.now()) {
+      alert("Please log in first.");
+      location.href = 'login.html';
+    }
+  </script>
+
+  <nav class="navbar bg-dark border-bottom border-body sticky-top bg-body-tertiary" data-bs-theme="dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html">Lab Reservation System</a>
+      <ul class="nav justify-content-end" id="yes-session">
+        <li class="nav-item">
+          <a class="nav-link" href="dashboard.html">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="lab.html">View Labs</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="profile.html">Profile</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" onclick="logout()" style="cursor: pointer;">Log Out</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="p-4" id="lab-container">
+  <div class="container">
+    <h2 class="mb-4 text-center">Reserve a Lab Seat</h2>
+
+    Lab Selector
+    <div class="mb-3">
+      <label for="labSelector" class="form-label">Select Lab:</label>
+      <select id="labSelector" class="form-select w-auto">
+        <option value="Lab A">Lab A</option>
+        <option value="Lab B">Lab B</option>
+        <option value="Lab C">Lab C</option>
+        <option value="Lab D">Lab D</option>
+        <option value="Lab E">Lab E</option>
+      </select>
+    </div>
+
+   
+    <div class="mb-3">
+      <label for="daySelector" class="form-label">Select Day:</label>
+      <select id="daySelector" class="form-select w-auto">
+      </select>
+    </div>
+    <!-- Legend for the seat availability -->
+    <div class="d-flex justify-content-center gap-4 mb-3 align-items-center flex-wrap">
+    <div><button class="btn btn-sm btn-outline-success" disabled> </button> Available</div>
+    <div><button class="btn btn-sm btn-primary" disabled> </button> Selected</div>
+    <div><button class="btn btn-sm btn-danger" disabled> </button> Reserved</div>
+    <div><button class="btn btn-sm btn-secondary" disabled>A</button> Anonymous</div>
+    </div>
+
+    <!-- Seat Grid -->
+    <div id="seatGrid" class="text-center mb-4"></div>
+
+<div class="d-flex justify-content-between mt-3">
+  <button id="clearReservationsBtn" class="btn btn-danger">Clear All Reservations</button>
+<div class="d-flex gap-2">
+  <button id="reserveBtn" class="btn btn-success">Reserve Selected</button>
+  <button id="reserveAnonBtn" class="btn btn-outline-secondary">Reserve Anonymously</button>
+</div>
+</div>
+</div>
+
+  <script src="assets/js/reservation.js"></script>
+  <script>
+    function logout() {
+      localStorage.removeItem('session');
+      alert('Logged out successfully.');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

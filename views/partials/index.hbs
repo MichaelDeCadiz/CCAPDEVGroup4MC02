@@ -1,0 +1,58 @@
+<nav class="navbar bg-dark border-bottom border-body sticky-top bg-body-tertiary" data-bs-theme="dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">Lab Reservation System</a>
+        <div id="no-session">
+            <ul class="nav justify-content-end" id="no-session">
+                <li class="nav-item">
+                    <a class="nav-link" href="register.html">Register</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="login.html">Login</a>
+                </li>
+            </ul>
+        </div>
+        <div id="yes-session">
+            <ul class="nav justify-content-end" id="yes-session">
+                <li class="nav-item">
+                    <a class="nav-link" href="dashboard.html">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="lab.html">View Labs</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="profile.html">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="logout()" style="cursor: pointer;">Log Out</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<img src="assets/images/lab.png" class="img-header" alt="lab picture">
+
+<div class="container text-center mt-5">
+    <h1>Welcome to the Lab Reservation System</h1>
+    <p class="lead">Group 4 - CCAPDEV</p>
+</div>
+
+<script src="assets/js/ui.js"></script>
+  
+<script>
+    const session = JSON.parse(localStorage.getItem('session') || '{}');
+    const div1 = document.getElementById('no-session');
+    const div2 = document.getElementById('yes-session');
+    if (!session.email || session.expiry < Date.now()) {
+        div2.style.display = 'none';
+    }
+    else {
+        div1.style.display = 'none';
+    }
+
+    function logout() {
+        localStorage.removeItem('session');
+        alert('Logged out successfully.');
+        window.location.href = 'index.html';
+    }
+</script>
