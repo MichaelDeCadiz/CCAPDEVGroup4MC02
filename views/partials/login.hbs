@@ -1,13 +1,13 @@
 <div class="container py-5" id="login-container">
     <h2>Login</h2>
   
-    <form id="loginForm">
+    <form id="loginForm" action="/login" method="POST">
         <div class="mb-2">
-            <input type="email" class="form-control" id="logEmail" placeholder="DLSU Email" required>
+            <input type="email" class="form-control" name="email" placeholder="DLSU Email" required>
         </div>
     
         <div class="mb-2">
-            <input type="password" class="form-control" id="logPassword" placeholder="Password" required>
+            <input type="password" class="form-control" name="password" placeholder="Password" required>
         </div>
     
         <div class="form-check mb-3">
@@ -19,28 +19,3 @@
         <p class="mt-3">Don't have an account? <a href="/register">Register</a></p>
     </form>
 </div>
-
-<script>
-    document.getElementById('loginForm').onsubmit = (e) => {
-        e.preventDefault();
-        const email = logEmail.value.trim();
-        const password = logPassword.value;
-
-        const users = JSON.parse(localStorage.getItem('users') || '{}');
-        const user = users[email];
-
-        if (!user || user.password !== password) return alert('Invalid credentials.');
-
-        const session = {
-            email,
-            role: user.role,
-            expiry: document.getElementById('rememberMe').checked
-                ? Date.now() + 1000 * 60 * 60 * 24 * 21 // 3 weeks
-                : Date.now() + 1000 * 60 * 30 // 30 mins
-        };
-
-        localStorage.setItem('session', JSON.stringify(session));
-        alert('Login successful!');
-        window.location.href = '/';
-    };
-</script>

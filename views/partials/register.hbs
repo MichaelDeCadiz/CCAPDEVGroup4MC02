@@ -1,17 +1,17 @@
 <div class="container py-5" id="reg-container">
     <h2>Register</h2>
 
-    <form id="registerForm" class="mb-3">
+    <form id="registerForm" class="mb-3" action="/register" method="POST">
         <div class="mb-2">
-            <input type="email" class="form-control" id="regEmail" placeholder="DLSU Email" required>
+            <input type="email" class="form-control" name="email" placeholder="DLSU Email" required>
         </div>
     
         <div class="mb-2">
-            <input type="password" class="form-control" id="regPassword" placeholder="Password" required>
+            <input type="password" class="form-control" name="password" placeholder="Password" required>
         </div>
     
         <div class="mb-3">
-            <select id="regRole" class="form-select">
+            <select name="accounttype" class="form-select">
                 <option value="student">Student</option>
                 <option value="technician">Lab Technician</option>
             </select>
@@ -22,24 +22,3 @@
   
     </form>
 </div>
- 
-<script>
-    document.getElementById('registerForm').onsubmit = (e) => {
-        e.preventDefault();
-        const email = regEmail.value.trim();
-        const password = regPassword.value;
-        const role = regRole.value;
-
-        if (!email.endsWith('@dlsu.edu.ph')) {
-            return alert("Only DLSU emails are allowed.");
-        }
-
-        const users = JSON.parse(localStorage.getItem('users') || '{}');
-        if (users[email]) return alert('User already exists.');
-
-        users[email] = { password, role };
-        localStorage.setItem('users', JSON.stringify(users));
-        alert('Registered successfully!');
-        window.location.href = '/login';
-    };
-</script>

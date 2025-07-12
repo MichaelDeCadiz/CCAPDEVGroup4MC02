@@ -9,7 +9,7 @@
 
     <div class="mb-3">
         <h5>Email:</h5>
-        <p id="email">student01@dlsu.edu.ph</p>
+        <p>{{userInfo.email}}</p>
     </div>
 
     <div class="mb-3">
@@ -52,8 +52,3 @@
         <button class="btn btn-outline-danger">Delete Account</button>
     </div>
 </div>
-
-<script>
-    const session = JSON.parse(localStorage.getItem('session') || '{}');
-    document.getElementById("email").innerHTML = session['email'];
-</script>

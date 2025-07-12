@@ -55,6 +55,26 @@
     <nav class="navbar bg-dark border-bottom border-body sticky-top bg-body-tertiary" data-bs-theme="dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">Lab Reservation System</a>
+            {{#if session}}
+            <div id="yes-session">
+                <ul class="nav justify-content-end" id="yes-session">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/viewlabs">View Labs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/profile">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <form action="/logout" method="POST">
+                            <a onclick="this.parentNode.submit();" class="nav-link">Log Out</a>
+                        </form>
+                    </li>
+                </ul>
+            </div> 
+            {{else}}
             <div id="no-session">
                 <ul class="nav justify-content-end" id="no-session">
                     <li class="nav-item">
@@ -65,41 +85,9 @@
                     </li>
                 </ul>
             </div>
-            <div id="yes-session">
-                <ul class="nav justify-content-end" id="yes-session">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/dashboard/{{userInfo.username}}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/viewlabs/{{userInfo.username}}">View Labs</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/profile/{{userInfo.username}}">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" onclick="logout()" style="cursor: pointer;">Log Out</a>
-                    </li>
-                </ul>
-            </div>
+            {{/if}}
         </div>
     </nav>
     {{{body}}}
-    <script>
-        const session = JSON.parse(localStorage.getItem('session') || '{}');
-        const div1 = document.getElementById('no-session');
-        const div2 = document.getElementById('yes-session');
-        if (!session.email || session.expiry < Date.now()) {
-            div2.style.display = 'none';
-        }
-        else {
-            div1.style.display = 'none';
-        }
-
-        function logout() {
-            localStorage.removeItem('session');
-            alert('Logged out successfully.');
-            window.location.href = '/';
-        }
-    </script>
 </body>
 </html>
