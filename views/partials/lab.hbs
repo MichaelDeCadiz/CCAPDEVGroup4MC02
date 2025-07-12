@@ -2,29 +2,9 @@
     const session = JSON.parse(localStorage.getItem('session') || '{}');
     if (!session.email || session.expiry < Date.now()) {
       alert("Please log in first.");
-      location.href = 'login.html';
+      location.href = '/login';
     }
 </script>
-
-<nav class="navbar bg-dark border-bottom border-body sticky-top bg-body-tertiary" data-bs-theme="dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="index.html">Lab Reservation System</a>
-        <ul class="nav justify-content-end" id="yes-session">
-            <li class="nav-item">
-                <a class="nav-link" href="dashboard.html">Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="lab.html">View Labs</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="profile.html">Profile</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" onclick="logout()" style="cursor: pointer;">Log Out</a>
-            </li>
-        </ul>
-    </div>
-</nav>
 
 <div class="p-4" id="lab-container">
 <div class="container">
@@ -68,11 +48,4 @@
         </div>
     </div>
 
-<script src="assets/js/reservation.js"></script>
-<script>
-    function logout() {
-        localStorage.removeItem('session');
-        alert('Logged out successfully.');
-        window.location.href = 'index.html';
-    }
-</script>
+<script src="/js/reservation.js"></script>

@@ -43,9 +43,28 @@ app.get('/', (req, res) => {
   res.render('partials/index');
 });
 
-app.get('/', async (req, res) => {
+//Login Page
+app.get('/login', async (req, res) => {
   try {
-    res.render('partials/', {  });
+    res.render('partials/login');
+  } catch (err) {
+    res.status(500).send("Error");
+  }
+});
+
+//Register Page
+app.get('/register', async (req, res) => {
+  try {
+    res.render('partials/register');
+  } catch (err) {
+    res.status(500).send("Error");
+  }
+});
+
+//Login Page
+app.get('/login', async (req, res) => {
+  try {
+    res.render('partials/login');
   } catch (err) {
     res.status(500).send("Error");
   }
