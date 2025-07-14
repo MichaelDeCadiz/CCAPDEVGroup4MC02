@@ -5,7 +5,9 @@ This project is a lab seat reservation system developed using Node.js, Express.j
 ---
 
 ##  Setup Instructions
-## Initialize the labs collection
-node models/seedLabs.js
 ## Run the application
 node app.js
+## Initialize the labs collection
+node models/seedLabs.js
+## Initialize the users
+node models/seedUsers.js
