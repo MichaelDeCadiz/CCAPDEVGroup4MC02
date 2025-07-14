@@ -55,7 +55,9 @@
             <tr>
                 <td>{{lab}}</td>
                 <td>{{reservationDateTime}}</td>
-                <td>{{seatNumber}}</td>
+                <td>{{seatNumber}}
+                    {{#if anonymous}}<span class="text-muted">(Anonymous)</span>{{/if}}
+                </td>
             </tr>
             {{/each}}
             </tbody>
