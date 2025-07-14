@@ -101,9 +101,9 @@ app.get('/profile', isAuth, async (req, res) => {
 
     const reservations = await Reservation.find({ reservedBy: email });
 
-    res.render('partials/profile', { userInfo, reservations, session: req.session.isAuth });
+    res.render('partials/profile', { user: user.toObject(), reservations, session: req.session.isAuth }); // changed userInfo to user.toObject so its a plain javascript object
   } catch (err) {
-    res.status(500).send("Error");
+    res.status(500).send("Error loading Profile");
   }
 });
 
