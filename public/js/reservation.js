@@ -12,7 +12,9 @@ for (let i = 0; i < 7; i++) {
   date.setDate(date.getDate() + i);
   const label = date.toLocaleDateString('en-PH', { weekday: 'short', month: 'short', day: 'numeric' });
   const option = document.createElement('option');
-  option.value = date.toISOString().split('T')[0];
+  option.value = date.getFullYear() + '-' +
+    String(date.getMonth() + 1).padStart(2, '0') + '-' +
+    String(date.getDate()).padStart(2, '0');
   option.textContent = label;
   daySelector.appendChild(option);
 }
