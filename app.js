@@ -190,6 +190,31 @@ app.post('/updatedescription/:email', async (req, res) => {
   res.redirect("/profile");
 });
 
+// Create Reservation
+app.post('/reserve', isAuth, async (req, res) => {
+  const { lab, seats, day, anonymous } = req.body;
+  const email = req.session.email;
+
+  try {
+    const seatArray = Array.isArray(seats) ? seats : [seats];
+
+    const newReservations = seatArray.map(seat => ({
+      seatNumber: seat,
+      lab,
+      reservationDateTime: new Date(day),  // Could use exact time if needed
+      requestDateTime: new Date(),
+      reservedBy: anonymous === 'true' ? 'Anonymous' : email
+    }));
+
+    await Reservation.insertMany(newReservations);
+
+    res.redirect('/dashboard');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error creating reservations.");
+  }
+});
+
 // Delete Reservation
 app.post('/reservations/delete/:id', isAuth, async (req, res) => {
   const reservationId = req.params.id;
