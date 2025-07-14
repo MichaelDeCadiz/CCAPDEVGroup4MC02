@@ -303,7 +303,8 @@ app.post('/reserve', isAuth, async (req, res) => {
       lab,
       reservationDateTime: new Date(day),  // Could use exact time if needed
       requestDateTime: new Date(),
-      reservedBy: anonymous === 'true' ? 'Anonymous' : email
+      reservedBy: email,
+      anonymous: anonymous === 'true'
     }));
 
     await Reservation.insertMany(newReservations);
