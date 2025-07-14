@@ -98,9 +98,9 @@ function getRandomFutureDate() {
 // Helper function to generate a random seat number based on lab dimensions
 // Uses standard seat naming convention: A1, A2, B1, B2, etc.
 function getRandomSeatNumber(rows, columns) {
-  const rowLetter = String.fromCharCode(65 + Math.floor(Math.random() * rows)); // A, B, C, etc.
+  const rowNumber = Math.floor(Math.random() * rows) + 1; // 1, 2, 3, etc.
   const colNumber = Math.floor(Math.random() * columns) + 1; // 1, 2, 3, etc.
-  return `${rowLetter}${colNumber}`;
+  return `R${rowNumber}C${colNumber}`;
 }
 
 // Helper function to generate a random past date for requestDateTime
@@ -209,6 +209,17 @@ async function seedUsersAndReservations() {
     // Show anonymous reservations count
     const anonymousCount = reservations.filter(res => res.anonymous).length;
     console.log(`\nAnonymous reservations: ${anonymousCount}`);
+
+    // Show user-specific reservation types
+    console.log('\nReservations by user:');
+    createdUsers.forEach(user => {
+    const email = user.email;
+    const userReservations = reservations.filter(r => r.reservedBy === email);
+    const publicCount = userReservations.length;
+    const anonCount = reservations.filter(r => r.anonymous && r.reservedBy === 'Anonymous' && r.email === email).length;
+
+    console.log(`  ${user.name}: ${publicCount} public${anonCount ? `, ${anonCount} anonymous` : ''}`);
+    });
 
     mongoose.connection.close();
   } catch (err) {

@@ -130,7 +130,7 @@ app.get('/profile/:email', isAuth, async (req, res) => {
   try {
     const email = req.params.email;
     const user = await User.findOne({ email });
-    const reservations = await Reservation.find({ reservedBy: email });
+    const reservations = await Reservation.find({ reservedBy: email, anonymous: false });
 
     if (!user) return res.status(404).send("User not found");
 
@@ -273,7 +273,6 @@ app.post('/deleteaccount/:email', async (req, res) => {
   const email = req.params.email;
 
   await User.deleteOne({ email: email });
-  await Reservation.deleteMany({ reservedBy: email });
 
   req.session.destroy((err) => {
     if(err) throw err;
@@ -297,20 +296,14 @@ app.post('/reserve', isAuth, async (req, res) => {
   const email = req.session.email;
 
   try {
-    const seatArrayRaw = Array.isArray(seats) ? seats : [seats];
-    const seatArray = seatArrayRaw.filter(seat => typeof seat === 'string' && seat.trim() !== '');
-
-    // Convert YYYY-MM-DD to local midnight (not UTC)
-    const [year, month, date] = day.split('-').map(Number);
-    const localReservationDate = new Date(Date.UTC(year, month - 1, date, 12));
+    const seatArray = Array.isArray(seats) ? seats : [seats];
 
     const newReservations = seatArray.map(seat => ({
       seatNumber: seat,
       lab,
-      reservationDateTime: localReservationDate,
+      reservationDateTime: new Date(day),  // Could use exact time if needed
       requestDateTime: new Date(),
-      reservedBy: email,
-      anonymous: anonymous === true || anonymous === 'true'
+      reservedBy: anonymous === 'true' ? 'Anonymous' : email
     }));
 
     await Reservation.insertMany(newReservations);
