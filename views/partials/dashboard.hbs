@@ -17,36 +17,27 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody id="reservationsTable"></tbody>
+            <tbody>
+                {{#each reservations}}
+                <tr>
+                    <td>{{this.lab}}</td>
+                    <td>{{this.reservationDateTime}}</td>
+                    <td>{{this.seatNumber}}</td>
+                    <td>
+                        <form action="/reservations/delete/{{this._id}}" method="POST" style="display:inline;">
+                            <button class="btn btn-sm btn-danger" type="submit">Cancel</button>
+                        </form>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
         </table>
 
         <div class="mt-3">
-            <button class="btn btn-outline-danger me-2">Cancel All My Reservations</button>
+            <form action="/reservations/deleteAll" method="POST">
+                <button class="btn btn-outline-danger me-2" type="submit">Cancel All My Reservations</button>
+            </form>
         </div>
+
     </div>
 </div>
-
-<script>
-    // fake reservation data
-    const fakeReservations = [
-        { lab: 'Lab C', date: 'Wed, Jun 19', seat: 'D8' },
-        { lab: 'Lab C', date: 'Thu, Jun 20', seat: 'D8' },
-        { lab: 'Lab C', date: 'Fri, Jun 21', seat: 'D9' }
-    ];
-
-    const table = document.getElementById('reservationsTable');
-
-    fakeReservations.forEach(res => {
-        const row = document.createElement('tr');
-        row.innerHTML = 
-        `
-        <td>${res.lab}</td>
-        <td>${res.date}</td>
-        <td>${res.seat}</td>
-        <td> 
-          <button class="btn btn-sm btn-danger">Cancel</button>
-        </td>
-        `;
-      table.appendChild(row);
-    });
-</script>

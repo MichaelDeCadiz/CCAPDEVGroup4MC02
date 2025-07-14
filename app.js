@@ -4,6 +4,7 @@ const exphbs = require('express-handlebars');
 const path = require('path');
 const mongoose = require('mongoose');
 const User = require('./models/User');
+const Reservation = require('./models/Reservation');
 
 const app = express();
 const port = 3000;
@@ -106,7 +107,10 @@ app.get('/profile', isAuth, async (req, res) => {
 //Dashboard Page
 app.get('/dashboard', isAuth, async (req, res) => {
   try {
-    res.render('partials/dashboard', { session: req.session.isAuth });
+    const email = req.session.email;
+    const reservations = await Reservation.find({ reservedBy: email });
+
+    res.render('partials/dashboard', { session: req.session.isAuth,reservations });
   } catch (err) {
     res.status(500).send("Error");
   }
@@ -178,6 +182,38 @@ app.post('/updatedescription/:email', async (req, res) => {
   await User.findOneAndUpdate({ email: email }, { description: newdescription });
 
   res.redirect("/profile");
+});
+
+// Delete Reservation
+app.post('/reservations/delete/:id', isAuth, async (req, res) => {
+  const reservationId = req.params.id;
+  const email = req.session.email;
+
+  try {
+    const reservation = await Reservation.findById(reservationId);
+
+    if (!reservation) return res.status(404).send('Reservation not found.');
+
+    // Only allow deletion if the user owns it
+    if (reservation.reservedBy !== email) return res.status(403).send('Unauthorized.');
+
+    await Reservation.findByIdAndDelete(reservationId);
+    res.redirect('/dashboard');
+  } catch (err) {
+    res.status(500).send('Error deleting reservation.');
+  }
+});
+
+// Delete all Reservations of Logged-In User
+app.post('/reservations/deleteAll', isAuth, async (req, res) => {
+  const email = req.session.email;
+
+  try {
+    await Reservation.deleteMany({ reservedBy: email });
+    res.redirect('/dashboard');
+  } catch (err) {
+    res.status(500).send('Error deleting all reservations.');
+  }
 });
 
 //Logout
