@@ -310,7 +310,7 @@ app.post('/reserve', isAuth, async (req, res) => {
       reservationDateTime: localReservationDate,
       requestDateTime: new Date(),
       reservedBy: email,
-      anonymous: anonymous === 'true'
+      anonymous: anonymous === true || anonymous === 'true'
     }));
 
     await Reservation.insertMany(newReservations);
