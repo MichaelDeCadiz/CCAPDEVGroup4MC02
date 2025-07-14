@@ -1,10 +1,17 @@
 <div class="container py-5" id="profile-container">
-    <h2 class="mb-4">My Profile</h2>
+    <h2 class="mb-4">{{#if isOwnProfile}}My Profile{{else}}{{userInfo.name}}'s Profile{{/if}}</h2>
 
     <div class="mb-4 text-center">
-        <img src="https://randomuser.me/api/portraits/men/60.jpg" alt="Profile Picture" class="rounded-circle mb-2" width="150" height="150">
+        <img src="{{userInfo.profileImage}}" alt="Profile Picture" class="rounded-circle mb-2" width="150" height="150">
         <br>
+        {{#if isOwnProfile}}
         <button class="btn btn-outline-primary btn-sm">Edit Profile Picture</button>
+        {{/if}}
+    </div>
+
+    <div class="mb-3">
+        <h5>Name:</h5>
+        <p>{{userInfo.name}}</p>
     </div>
 
     <div class="mb-3">
@@ -14,6 +21,7 @@
 
     <div class="mb-3">
         <h5>Description:</h5>
+        {{#if isOwnProfile}}
         <div id="description">
             <p>{{userInfo.description}}</p>
             <button class="btn btn-outline-primary btn-sm mt-2 me-2" id="editdescription">Edit Description</button>
@@ -27,10 +35,13 @@
             </form>
             <button type="button" class="btn btn-outline-danger" id="canceldescription">Cancel</button>
         </div>
+        {{else}}
+        <p>{{userInfo.description}}</p>
+        {{/if}}
     </div>
 
     <div class="mt-5">
-        <h5 class="mb-3">Current Reservations</h5>
+         <h5 class="mb-3">{{#if isOwnProfile}}Current Reservations{{else}}Public Reservations{{/if}}</h5>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -51,14 +62,20 @@
         </table>
     </div>
 
-        
+    {{#if isOwnProfile}}    
     <div class="mt-4">
         <form action="/deleteaccount/{{userInfo.email}}" method="POST">
             <button class="btn btn-outline-danger" type="submit">Delete Account</button>
         </form>
     </div>
+    {{else}}
+    <div class="mt-4">
+        <a href="/dashboard" class="btn btn-outline-secondary">Back to Dashboard</a>
+    </div>
+    {{/if}}
 </div>
 
+{{#if isOwnProfile}}
 <script>
     const noedit = document.getElementById('description');
     const edit = document.getElementById('editing');
@@ -77,3 +94,4 @@
         noedit.style.display = 'block';
     });
 </script>
+{{/if}}

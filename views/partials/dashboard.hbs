@@ -2,9 +2,12 @@
     <div class="container">
 
         <h2 class="mb-4">My Dashboard</h2>
-        <div class="mb-4 mt-2">
-            <input type="text" class="form-control" placeholder="Search for users">
-        </div>
+        <form class="mb-4 mt-2 d-flex" action="/search" method="GET">
+        <input type="text" class="form-control me-2" name="q" placeholder="Search for users" required>
+        <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+        <a href="/profile" class="btn btn-outline-secondary">My Profile</a>
+
 
         <h5 class="text-muted mb-3">My Reservations</h5>
 
@@ -38,6 +41,8 @@
                 <button class="btn btn-outline-danger me-2" type="submit">Cancel All My Reservations</button>
             </form>
         </div>
+
+        
 
     </div>
 </div>

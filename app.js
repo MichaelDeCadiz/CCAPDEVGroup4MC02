@@ -95,17 +95,56 @@ app.get('/register', async (req, res) => {
 app.get('/profile', isAuth, async (req, res) => {
   try {
     const email = req.session.email;
+    console.log('Profile route - session email:', email); // Debug check
 
     const user = await User.findOne({ email: email });
-    const userInfo = user.toObject();
+    console.log('Profile route - found user:', user); // Debug check
+
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
 
     const reservations = await Reservation.find({ reservedBy: email }).lean();
+    console.log('Profile route - found reservations:', reservations); // Debug check
 
-    res.render('partials/profile', { user: user.toObject(), reservations, session: req.session.isAuth }); // changed userInfo to user.toObject so its a plain javascript object
+    const userData = {
+      userInfo: user.toObject(),
+      reservations, 
+      session: req.session.isAuth,
+      isOwnProfile: true
+    };
+
+    console.log('Profile route - sending to template:', userData); // Debug check
+
+    res.render('partials/profile', userData); 
+    } catch (err) {
+      console.error('Profile route error:', err);
+      res.status(500).send("Error loading Profile");
+    }
+});
+
+
+
+// View Public User Profile
+app.get('/profile/:email', isAuth, async (req, res) => {
+  try {
+    const email = req.params.email;
+    const user = await User.findOne({ email });
+    const reservations = await Reservation.find({ reservedBy: email });
+
+    if (!user) return res.status(404).send("User not found");
+
+    res.render('partials/profile', {
+      userInfo: user.toObject(),
+      reservations: reservations.map(r => r.toObject()),
+      session: req.session.isAuth,
+      isOwnProfile: false});
   } catch (err) {
-    res.status(500).send("Error loading Profile");
+    console.error(err);
+    res.status(500).send("Error loading profile");
   }
 });
+
 
 //Dashboard Page
 app.get('/dashboard', isAuth, async (req, res) => {
@@ -118,6 +157,42 @@ app.get('/dashboard', isAuth, async (req, res) => {
     res.status(500).send("Error");
   }
 });
+
+// Search users
+app.get('/search', isAuth, async (req, res) => {
+  console.log('Search route hit with query:', req.query); // Debug check
+  
+  const query = req.query.q;
+  
+  // Check if query exists
+  if (!query || query.trim() === '') {
+    console.log('Empty query, redirecting to dashboard');
+    return res.redirect('/dashboard');
+  }
+  
+  try {
+    console.log('Searching for:', query); // Debug check
+    
+    const users = await User.find({
+      $or: [
+        { name: new RegExp(query, 'i') },
+        { email: new RegExp(query, 'i') }
+      ]
+    }).lean();
+
+    console.log('Found users:', users); // Debug check
+
+    res.render('partials/searchResults', { 
+      users, 
+      session: req.session.isAuth,
+      query: query // Pass the query back to template
+    });
+  } catch (err) {
+    console.error('Search error:', err); // Debug check
+    res.status(500).send("Error searching users");
+  }
+});
+
 
 //Labs Page
 app.get('/viewlabs', isAuth, async (req, res) => {

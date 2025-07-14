@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
   description: {
     type: String,
     default: "add description"
+  },
+  profileImage: {
+    type: String,
+    default: "https://randomuser.me/api/portraits/men/60.jpg"
   }
 }, { timestamps: true });
 
