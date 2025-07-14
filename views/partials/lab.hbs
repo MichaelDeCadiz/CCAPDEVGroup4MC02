@@ -1,11 +1,3 @@
-<script>
-    const session = JSON.parse(localStorage.getItem('session') || '{}');
-    if (!session.email || session.expiry < Date.now()) {
-      alert("Please log in first.");
-      location.href = '/login';
-    }
-</script>
-
 <div class="p-4" id="lab-container">
 <div class="container">
     <h2 class="mb-4 text-center">Reserve a Lab Seat</h2>

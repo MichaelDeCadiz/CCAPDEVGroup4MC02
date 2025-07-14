@@ -103,6 +103,24 @@ app.get('/profile', isAuth, async (req, res) => {
   }
 });
 
+//Dashboard Page
+app.get('/dashboard', isAuth, async (req, res) => {
+  try {
+    res.render('partials/dashboard', { session: req.session.isAuth });
+  } catch (err) {
+    res.status(500).send("Error");
+  }
+});
+
+//Labs Page
+app.get('/viewlabs', isAuth, async (req, res) => {
+  try {
+    res.render('partials/lab', { session: req.session.isAuth });
+  } catch (err) {
+    res.status(500).send("Error");
+  }
+});
+
 //--POST--
 
 //Login Confirmation
