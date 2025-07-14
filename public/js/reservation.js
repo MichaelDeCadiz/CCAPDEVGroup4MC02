@@ -45,7 +45,7 @@ async function loadGrid() {
     for (let c = 0; c < columns; c++) {
       const seatId = `R${r + 1}C${c + 1}`;
       const seatBtn = document.createElement('button');
-      seatBtn.classList.add('btn', 'btn-sm', 'seat-btn');
+      seatBtn.className = 'btn btn-sm seat-btn';
       seatBtn.id = seatId;
 
       const res = reservations[seatId];

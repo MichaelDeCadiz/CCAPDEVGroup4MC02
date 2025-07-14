@@ -302,7 +302,7 @@ app.post('/reserve', isAuth, async (req, res) => {
 
     // Convert YYYY-MM-DD to local midnight (not UTC)
     const [year, month, date] = day.split('-').map(Number);
-    const localReservationDate = new Date(year, month - 1, date); // JS months are 0-based
+    const localReservationDate = new Date(Date.UTC(year, month - 1, date, 12));
 
     const newReservations = seatArray.map(seat => ({
       seatNumber: seat,
