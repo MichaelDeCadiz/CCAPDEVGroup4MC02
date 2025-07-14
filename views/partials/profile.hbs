@@ -40,21 +40,13 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Lab C</td>
-                    <td>Wed, Jun 19</td>
-                    <td>D8</td>
-                </tr>
-                <tr>
-                    <td>Lab C</td>
-                    <td>Thu, Jun 20</td>
-                    <td>D8</td>
-                </tr>
-                <tr>
-                    <td>Lab C</td>
-                    <td>Fri, Jun 21</td>
-                    <td>D9</td>
-                </tr>
+            {{#each reservations}}
+            <tr>
+                <td>{{this.lab}}</td>
+                <td>{{this.reservationDateTime}}</td>
+                <td>{{this.seatNumber}}</td>
+            </tr>
+            {{/each}}
             </tbody>
         </table>
     </div>

@@ -98,7 +98,9 @@ app.get('/profile', isAuth, async (req, res) => {
     const user = await User.findOne({ email: email });
     const userInfo = user.toObject();
 
-    res.render('partials/profile', { userInfo, session: req.session.isAuth });
+    const reservations = await Reservation.find({ reservedBy: email });
+
+    res.render('partials/profile', { userInfo, reservations, session: req.session.isAuth });
   } catch (err) {
     res.status(500).send("Error");
   }
