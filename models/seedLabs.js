@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Lab = require('./Lab'); 
+const Lab = require('./lab');
 
 mongoose.connect('mongodb://localhost:27017/labreservationDB');
 
