@@ -273,6 +273,7 @@ app.post('/deleteaccount/:email', async (req, res) => {
   const email = req.params.email;
 
   await User.deleteOne({ email: email });
+  await Reservation.deleteMany({ reservedBy: email });
 
   req.session.destroy((err) => {
     if(err) throw err;
@@ -296,14 +297,20 @@ app.post('/reserve', isAuth, async (req, res) => {
   const email = req.session.email;
 
   try {
-    const seatArray = Array.isArray(seats) ? seats : [seats];
+    const seatArrayRaw = Array.isArray(seats) ? seats : [seats];
+    const seatArray = seatArrayRaw.filter(seat => typeof seat === 'string' && seat.trim() !== '');
+
+    // Convert YYYY-MM-DD to local midnight (not UTC)
+    const [year, month, date] = day.split('-').map(Number);
+    const localReservationDate = new Date(year, month - 1, date); // JS months are 0-based
 
     const newReservations = seatArray.map(seat => ({
       seatNumber: seat,
       lab,
-      reservationDateTime: new Date(day),  // Could use exact time if needed
+      reservationDateTime: localReservationDate,
       requestDateTime: new Date(),
-      reservedBy: anonymous === 'true' ? 'Anonymous' : email
+      reservedBy: email,
+      anonymous: anonymous === true || anonymous === 'true'
     }));
 
     await Reservation.insertMany(newReservations);
