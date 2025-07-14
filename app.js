@@ -5,6 +5,8 @@ const path = require('path');
 const mongoose = require('mongoose');
 const User = require('./models/User');
 const Reservation = require('./models/Reservation');
+const Lab = require('./models/lab');
+2479e6e (dynamic lab model)
 
 const app = express();
 const port = 3000;
@@ -121,9 +123,12 @@ app.get('/dashboard', isAuth, async (req, res) => {
 //Labs Page
 app.get('/viewlabs', isAuth, async (req, res) => {
   try {
-    res.render('partials/lab', { session: req.session.isAuth });
+    const labs = await Lab.find({});
+    console.log('Labs being sent to template:', labs);
+    res.render('lab', { labs: labs, session: req.session.isAuth });
   } catch (err) {
-    res.status(500).send("Error");
+    console.error('Error loading labs:', err);
+    res.status(500).send("Error loading labs");
   }
 });
 

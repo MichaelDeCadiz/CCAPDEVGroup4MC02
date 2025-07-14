@@ -1,0 +1,46 @@
+<div class="p-4" id="lab-container">
+  <div class="container">
+    <h2 class="mb-4 text-center">Reserve a Lab Seat</h2>
+
+    <!-- Lab Selector -->
+    <div class="mb-3">
+      <label for="labSelector" class="form-label">Select Lab:</label>
+      <select id="labSelector" class="form-select w-auto">
+        <option disabled selected>Select a lab</option>
+        {{#each labs}}
+          <option value="{{name}}" data-rows="{{rows}}" data-columns="{{columns}}">{{name}}</option>
+        {{/each}}
+      </select>
+    </div>
+
+    <!-- Day Selector -->
+    <div class="mb-3">
+      <label for="daySelector" class="form-label">Select Day:</label>
+      <select id="daySelector" class="form-select w-auto">
+        <!-- Options will be populated by JavaScript -->
+      </select>
+    </div>
+
+    <!-- Seat Legend -->
+    <div class="d-flex justify-content-center gap-4 mb-3 align-items-center flex-wrap">
+      <div><button class="btn btn-sm btn-outline-success" disabled></button> Available</div>
+      <div><button class="btn btn-sm btn-primary" disabled></button> Selected</div>
+      <div><button class="btn btn-sm btn-danger" disabled></button> Reserved</div>
+      <div><button class="btn btn-sm btn-secondary" disabled>A</button> Anonymous</div>
+    </div>
+
+    <!-- Seat Grid -->
+    <div id="seatGrid" class="text-center mb-4 d-flex flex-column gap-2"></div>
+
+    <!-- Buttons -->
+    <div class="d-flex justify-content-between mt-3">
+      <button id="clearReservationsBtn" class="btn btn-danger">Clear All Reservations</button>
+      <div class="d-flex gap-2">
+        <button id="reserveBtn" class="btn btn-success">Reserve Selected</button>
+        <button id="reserveAnonBtn" class="btn btn-outline-secondary">Reserve Anonymously</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/reservation.js"></script>
