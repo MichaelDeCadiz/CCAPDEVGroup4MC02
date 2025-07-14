@@ -1,0 +1,18 @@
+<div class="container py-4">
+  <h3>Search Results</h3>
+
+  {{#if users.length}}
+    <ul class="list-group">
+      {{#each users}}
+        <li class="list-group-item">
+          {{this.name}} ({{this.email}})
+          <a href="/profile/{{this.email}}" class="btn btn-sm btn-outline-primary float-end">View Profile</a>
+        </li>
+      {{/each}}
+    </ul>
+  {{else}}
+    <p>No users found matching your query.</p>
+  {{/if}}
+
+  <a href="/dashboard" class="btn btn-link mt-3">Back to Dashboard</a>
+</div>

@@ -101,9 +101,9 @@ app.get('/profile', isAuth, async (req, res) => {
 
     const reservations = await Reservation.find({ reservedBy: email });
 
-    res.render('partials/profile', { userInfo, reservations, session: req.session.isAuth });
+    res.render('partials/profile', { user: user.toObject(), reservations, session: req.session.isAuth }); // changed userInfo to user.toObject so its a plain javascript object
   } catch (err) {
-    res.status(500).send("Error");
+    res.status(500).send("Error loading Profile");
   }
 });
 
@@ -129,6 +129,31 @@ app.get('/viewlabs', isAuth, async (req, res) => {
     console.error('Error loading labs:', err);
     res.status(500).send("Error loading labs");
   }
+});
+
+// Fetch Reservation Data
+app.get('/api/reservations', isAuth, async (req, res) => {
+  const { lab, day } = req.query;
+  if (!lab || !day) return res.status(400).send('Missing lab or day.');
+
+  const dayStart = new Date(day);
+  const dayEnd = new Date(day);
+  dayEnd.setDate(dayEnd.getDate() + 1);
+
+  const reservations = await Reservation.find({
+    lab,
+    reservationDateTime: { $gte: dayStart, $lt: dayEnd }
+  });
+
+  const result = {};
+  reservations.forEach(r => {
+    result[r.seatNumber] = {
+      reservedBy: r.reservedBy,
+      anonymous: r.anonymous
+    };
+  });
+
+  res.json(result);
 });
 
 //--POST--
@@ -188,6 +213,31 @@ app.post('/updatedescription/:email', async (req, res) => {
   await User.findOneAndUpdate({ email: email }, { description: newdescription });
 
   res.redirect("/profile");
+});
+
+// Create Reservation
+app.post('/reserve', isAuth, async (req, res) => {
+  const { lab, seats, day, anonymous } = req.body;
+  const email = req.session.email;
+
+  try {
+    const seatArray = Array.isArray(seats) ? seats : [seats];
+
+    const newReservations = seatArray.map(seat => ({
+      seatNumber: seat,
+      lab,
+      reservationDateTime: new Date(day),  // Could use exact time if needed
+      requestDateTime: new Date(),
+      reservedBy: anonymous === 'true' ? 'Anonymous' : email
+    }));
+
+    await Reservation.insertMany(newReservations);
+
+    res.redirect('/dashboard');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error creating reservations.");
+  }
 });
 
 // Delete Reservation
