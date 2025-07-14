@@ -14,8 +14,19 @@
 
     <div class="mb-3">
         <h5>Description:</h5>
-        <p>Third-year computer science student passionate about building clean, accessible web apps. Big fan of Marvel movies and cold brew coffee.</p>
-        <button class="btn btn-outline-primary btn-sm mt-2 me-2">Edit Description</button>
+        <div id="description">
+            <p>{{userInfo.description}}</p>
+            <button class="btn btn-outline-primary btn-sm mt-2 me-2" id="editdescription">Edit Description</button>
+        </div>
+        <div id="editing">
+            <form action="/updatedescription/{{userInfo.email}}" method="POST">
+                <div class="mb-3">
+                    <input type="text" class="form-control" name="newdescription" value="{{userInfo.description}}">
+                </div>
+                <button type="submit" class="btn btn-outline-success">Save</button>
+            </form>
+            <button type="button" class="btn btn-outline-danger" id="canceldescription">Cancel</button>
+        </div>
     </div>
 
     <div class="mt-5">
@@ -48,7 +59,29 @@
         </table>
     </div>
 
+        
     <div class="mt-4">
-        <button class="btn btn-outline-danger">Delete Account</button>
+        <form action="/deleteaccount/{{userInfo.email}}" method="POST">
+            <button class="btn btn-outline-danger" type="submit">Delete Account</button>
+        </form>
     </div>
 </div>
+
+<script>
+    const noedit = document.getElementById('description');
+    const edit = document.getElementById('editing');
+
+    edit.style.display = 'none';
+
+    const editbutton = document.getElementById('editdescription');
+    const cancelbutton = document.getElementById('canceldescription');
+
+    editbutton.addEventListener('click', function() {
+        noedit.style.display = 'none';
+        edit.style.display = 'block';
+    });
+    cancelbutton.addEventListener('click', function() {
+        edit.style.display = 'none';
+        noedit.style.display = 'block';
+    });
+</script>
