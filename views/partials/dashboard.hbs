@@ -20,11 +20,11 @@
             <tbody>
                 {{#each reservations}}
                 <tr>
-                    <td>{{this.lab}}</td>
-                    <td>{{this.reservationDateTime}}</td>
-                    <td>{{this.seatNumber}}</td>
+                    <td>{{lab}}</td>
+                    <td>{{reservationDateTime}}</td>
+                    <td>{{seatNumber}}</td>
                     <td>
-                        <form action="/reservations/delete/{{this._id}}" method="POST" style="display:inline;">
+                        <form action="/reservations/delete/{{_id}}" method="POST" style="display:inline;">
                             <button class="btn btn-sm btn-danger" type="submit">Cancel</button>
                         </form>
                     </td>
