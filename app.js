@@ -131,6 +131,31 @@ app.get('/viewlabs', isAuth, async (req, res) => {
   }
 });
 
+// Fetch Reservation Data
+app.get('/api/reservations', isAuth, async (req, res) => {
+  const { lab, day } = req.query;
+  if (!lab || !day) return res.status(400).send('Missing lab or day.');
+
+  const dayStart = new Date(day);
+  const dayEnd = new Date(day);
+  dayEnd.setDate(dayEnd.getDate() + 1);
+
+  const reservations = await Reservation.find({
+    lab,
+    reservationDateTime: { $gte: dayStart, $lt: dayEnd }
+  });
+
+  const result = {};
+  reservations.forEach(r => {
+    result[r.seatNumber] = {
+      reservedBy: r.reservedBy,
+      anonymous: r.anonymous
+    };
+  });
+
+  res.json(result);
+});
+
 //--POST--
 
 //Login Confirmation

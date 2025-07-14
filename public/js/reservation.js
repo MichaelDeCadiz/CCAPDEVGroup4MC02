@@ -1,10 +1,11 @@
-const currentUser = 'student@example.com'; // sample
 const daySelector = document.getElementById('daySelector');
 const labSelector = document.getElementById('labSelector');
 const seatGrid = document.getElementById('seatGrid');
 const reserveBtn = document.getElementById('reserveBtn');
+const reserveAnonBtn = document.getElementById('reserveAnonBtn');
+const clearReservationsBtn = document.getElementById('clearReservationsBtn');
 
-// Populate 7day dropdown
+// Populate next 7 days
 const today = new Date();
 for (let i = 0; i < 7; i++) {
   const date = new Date(today);
@@ -16,10 +17,14 @@ for (let i = 0; i < 7; i++) {
   daySelector.appendChild(option);
 }
 
-function loadGrid() {
+async function fetchReservations(lab, day) {
+  const response = await fetch(`/api/reservations?lab=${lab}&day=${day}`);
+  if (!response.ok) return {};
+  return await response.json(); // returns { seatNumber: { reservedBy, anonymous } }
+}
+
+async function loadGrid() {
   const selectedOption = labSelector.options[labSelector.selectedIndex];
-  
-  // Check if a lab is selected and has data attributes
   if (!selectedOption || !selectedOption.dataset.rows || !selectedOption.dataset.columns) {
     seatGrid.innerHTML = '';
     return;
@@ -29,13 +34,10 @@ function loadGrid() {
   const day = daySelector.value;
   const rows = parseInt(selectedOption.dataset.rows);
   const columns = parseInt(selectedOption.dataset.columns);
-  
-  const key = `${lab}-${day}`;
-  const reservations = JSON.parse(localStorage.getItem(key)) || {};
 
+  const reservations = await fetchReservations(lab, day);
   seatGrid.innerHTML = '';
 
-  // Create the seat grid based on database values
   for (let r = 0; r < rows; r++) {
     const rowDiv = document.createElement('div');
     rowDiv.className = 'd-flex justify-content-center gap-2 mb-2';
@@ -46,20 +48,12 @@ function loadGrid() {
       seatBtn.classList.add('btn', 'btn-sm', 'seat-btn');
       seatBtn.id = seatId;
 
-      if (reservations[seatId]) {
-        const res = reservations[seatId];
+      const res = reservations[seatId];
+      if (res) {
         seatBtn.classList.add(res.anonymous ? 'btn-secondary' : 'btn-danger');
         seatBtn.textContent = res.anonymous ? 'A' : 'R';
-        seatBtn.title = res.anonymous ? 'Anonymous' : res.name;
-
-        if (res.anonymous) {
-          seatBtn.disabled = true;
-        } else {
-          seatBtn.style.cursor = 'pointer';
-          seatBtn.onclick = () => {
-            window.location.href = `profile.html?email=${encodeURIComponent(res.name)}`;
-          };
-        }
+        seatBtn.title = res.anonymous ? 'Anonymous' : res.reservedBy;
+        seatBtn.disabled = true;
       } else {
         seatBtn.classList.add('btn-outline-success');
         seatBtn.textContent = seatId;
@@ -76,60 +70,53 @@ function loadGrid() {
   }
 }
 
-reserveBtn.onclick = () => {
+async function reserveSeats(anonymous = false) {
   const lab = labSelector.value;
   const day = daySelector.value;
-  const key = `${lab}-${day}`;
-  const reservations = JSON.parse(localStorage.getItem(key)) || {};
-  const seats = document.querySelectorAll('.btn-primary');
-  
+  const seats = Array.from(document.querySelectorAll('.btn-primary')).map(btn => btn.id);
+
   if (seats.length === 0) return alert('No seats selected!');
 
-  seats.forEach(btn => {
-    const id = btn.id;
-    if (!id || id.length < 4) return;
-    reservations[id] = { name: currentUser, anonymous: false };
+  const formData = new URLSearchParams();
+  formData.append('lab', lab);
+  formData.append('day', day);
+  formData.append('anonymous', anonymous);
+
+  seats.forEach(seat => formData.append('seats', seat));
+
+  const response = await fetch('/reserve', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: formData.toString()
   });
 
-  localStorage.setItem(key, JSON.stringify(reservations));
-  alert('Reservation successful!');
-  loadGrid();
-};
-
-document.getElementById('reserveAnonBtn').onclick = () => {
-  const lab = labSelector.value;
-  const day = daySelector.value;
-  const key = `${lab}-${day}`;
-  const reservations = JSON.parse(localStorage.getItem(key)) || {};
-  const seats = document.querySelectorAll('.btn-primary');
-  
-  if (seats.length === 0) return alert('No seats selected!');
-
-  seats.forEach(btn => {
-    const id = btn.id;
-    if (!id || id.length < 4) return;
-    reservations[id] = { name: currentUser, anonymous: true };
-  });
-
-  localStorage.setItem(key, JSON.stringify(reservations));
-  alert('Anonymous reservation successful!');
-  loadGrid();
-};
-
-document.getElementById('clearReservationsBtn').onclick = () => {
-  const lab = labSelector.value;
-  const day = daySelector.value;
-  const key = `${lab}-${day}`;
-  
-  if (confirm('Are you sure you want to clear all reservations for this lab and day?')) {
-    localStorage.removeItem(key);
-    alert('All reservations cleared!');
+  if (response.ok) {
+    alert('Reservation successful!');
     loadGrid();
+  } else {
+    alert('Error reserving seats.');
   }
+}
+
+reserveBtn.onclick = () => reserveSeats(false);
+reserveAnonBtn.onclick = () => reserveSeats(true);
+
+clearReservationsBtn.onclick = () => {
+  const selectedSeats = document.querySelectorAll('.btn-primary');
+
+  if (selectedSeats.length === 0) {
+    alert('No seats currently selected.');
+    return;
+  }
+
+  selectedSeats.forEach(btn => {
+    btn.classList.remove('btn-primary');
+    btn.classList.add('btn-outline-success');
+  });
+
+  alert('Selected seats cleared.');
 };
 
 labSelector.onchange = loadGrid;
 daySelector.onchange = loadGrid;
-
-// Load grid after page loads
 setTimeout(loadGrid, 100);
