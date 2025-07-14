@@ -297,7 +297,8 @@ app.post('/reserve', isAuth, async (req, res) => {
   const email = req.session.email;
 
   try {
-    const seatArray = Array.isArray(seats) ? seats : [seats];
+    const seatArrayRaw = Array.isArray(seats) ? seats : [seats];
+    const seatArray = seatArrayRaw.filter(seat => typeof seat === 'string' && seat.trim() !== '');
 
     // Convert YYYY-MM-DD to local midnight (not UTC)
     const [year, month, date] = day.split('-').map(Number);
