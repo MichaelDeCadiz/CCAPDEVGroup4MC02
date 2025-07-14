@@ -6,7 +6,6 @@ const mongoose = require('mongoose');
 const User = require('./models/User');
 const Reservation = require('./models/Reservation');
 const Lab = require('./models/lab');
-2479e6e (dynamic lab model)
 
 const app = express();
 const port = 3000;
