@@ -99,7 +99,7 @@ app.get('/profile', isAuth, async (req, res) => {
     const user = await User.findOne({ email: email });
     const userInfo = user.toObject();
 
-    const reservations = await Reservation.find({ reservedBy: email });
+    const reservations = await Reservation.find({ reservedBy: email }).lean();
 
     res.render('partials/profile', { user: user.toObject(), reservations, session: req.session.isAuth }); // changed userInfo to user.toObject so its a plain javascript object
   } catch (err) {
@@ -111,9 +111,9 @@ app.get('/profile', isAuth, async (req, res) => {
 app.get('/dashboard', isAuth, async (req, res) => {
   try {
     const email = req.session.email;
-    const reservations = await Reservation.find({ reservedBy: email });
+    const reservations = await Reservation.find({ reservedBy: email }).lean();
 
-    res.render('partials/dashboard', { session: req.session.isAuth,reservations });
+    res.render('partials/dashboard', { session: req.session.isAuth, reservations });
   } catch (err) {
     res.status(500).send("Error");
   }
