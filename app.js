@@ -158,6 +158,28 @@ app.post('/register', async (req, res) => {
   }
 });
 
+//Delete User
+app.post('/deleteaccount/:email', async (req, res) => {
+  const email = req.params.email;
+
+  await User.deleteOne({ email: email });
+
+  req.session.destroy((err) => {
+    if(err) throw err;
+    res.redirect('/');
+  });
+});
+
+//Update User Description
+app.post('/updatedescription/:email', async (req, res) => {
+  const email = req.params.email;
+  const newdescription = req.body.newdescription;
+
+  await User.findOneAndUpdate({ email: email }, { description: newdescription });
+
+  res.redirect("/profile");
+});
+
 //Logout
 app.post('/logout', async (req, res) => {
   req.session.destroy((err) => {
