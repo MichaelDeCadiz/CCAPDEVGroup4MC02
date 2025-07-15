@@ -98,9 +98,9 @@ function getRandomFutureDate() {
 // Helper function to generate a random seat number based on lab dimensions
 // Uses standard seat naming convention: A1, A2, B1, B2, etc.
 function getRandomSeatNumber(rows, columns) {
-  const rowNumber = Math.floor(Math.random() * rows) + 1; // 1, 2, 3, etc.
+  const rowLetter = String.fromCharCode(65 + Math.floor(Math.random() * rows)); // A, B, C, etc.
   const colNumber = Math.floor(Math.random() * columns) + 1; // 1, 2, 3, etc.
-  return `R${rowNumber}C${colNumber}`;
+  return `${rowLetter}${colNumber}`;
 }
 
 // Helper function to generate a random past date for requestDateTime
