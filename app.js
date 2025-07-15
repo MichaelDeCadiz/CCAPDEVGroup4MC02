@@ -130,7 +130,7 @@ app.get('/profile/:email', isAuth, async (req, res) => {
   try {
     const email = req.params.email;
     const user = await User.findOne({ email });
-    const reservations = await Reservation.find({ reservedBy: email, anonymous: false });
+    const reservations = await Reservation.find({ reservedBy: email });
 
     if (!user) return res.status(404).send("User not found");
 
