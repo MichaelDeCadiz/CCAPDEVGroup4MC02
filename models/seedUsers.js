@@ -86,10 +86,10 @@ const users = [
   }
 ];
 
-// Helper function to generate a random date within the next 30 days
+// Helper function to generate a random date within the next 7 days
 function getRandomFutureDate() {
   const today = new Date();
-  const randomDays = Math.floor(Math.random() * 30) + 1; // 1-30 days from today
+  const randomDays = Math.floor(Math.random() * 7); // 0-6 days ahead
   const futureDate = new Date(today);
   futureDate.setDate(today.getDate() + randomDays);
   return futureDate;
@@ -101,15 +101,6 @@ function getRandomSeatNumber(rows, columns) {
   const rowNumber = Math.floor(Math.random() * rows) + 1; // 1, 2, 3, ...
   const colNumber = Math.floor(Math.random() * columns) + 1;
   return `R${rowNumber}C${colNumber}`;
-}
-
-// Helper function to generate a random past date for requestDateTime
-function getRandomPastDate() {
-  const today = new Date();
-  const randomDays = Math.floor(Math.random() * 7) + 1; // 1-7 days ago
-  const pastDate = new Date(today);
-  pastDate.setDate(today.getDate() - randomDays);
-  return pastDate;
 }
 
 async function seedUsersAndReservations() {
@@ -180,7 +171,6 @@ async function seedUsersAndReservations() {
         reservedBy: randomUser.email,
         anonymous: isAnonymous,
         reservationDateTime: reservationDate,
-        requestDateTime: getRandomPastDate()
       };
       
       reservations.push(reservation);
