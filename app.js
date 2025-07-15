@@ -273,6 +273,7 @@ app.post('/deleteaccount/:email', async (req, res) => {
   const email = req.params.email;
 
   await User.deleteOne({ email: email });
+  await Reservation.deleteMany({ reservedBy: email });
 
   req.session.destroy((err) => {
     if(err) throw err;
