@@ -177,7 +177,7 @@ async function seedUsersAndReservations() {
       const reservation = {
         seatNumber: seatNumber,
         lab: randomLab.name,
-        reservedBy: isAnonymous ? 'Anonymous' : randomUser.email,
+        reservedBy: randomUser.email,
         anonymous: isAnonymous,
         reservationDateTime: reservationDate,
         requestDateTime: getRandomPastDate()
