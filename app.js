@@ -296,14 +296,16 @@ app.post('/reserve', isAuth, async (req, res) => {
   const email = req.session.email;
 
   try {
-    const seatArray = Array.isArray(seats) ? seats : [seats];
+    const seatArrayRaw = Array.isArray(seats) ? seats : [seats];
+    const seatArray = seatArrayRaw.filter(seat => typeof seat === 'string' && seat.trim() !== '');
 
     const newReservations = seatArray.map(seat => ({
       seatNumber: seat,
       lab,
-      reservationDateTime: new Date(day),  // Could use exact time if needed
+      reservationDateTime: new Date(day),
       requestDateTime: new Date(),
-      reservedBy: anonymous === 'true' ? 'Anonymous' : email
+      reservedBy: email,
+      anonymous: String(anonymous) === 'true'
     }));
 
     await Reservation.insertMany(newReservations);
@@ -314,6 +316,7 @@ app.post('/reserve', isAuth, async (req, res) => {
     res.status(500).send("Error creating reservations.");
   }
 });
+
 
 // Delete Reservation
 app.post('/reservations/delete/:id', isAuth, async (req, res) => {
