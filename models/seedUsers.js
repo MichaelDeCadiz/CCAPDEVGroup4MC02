@@ -86,19 +86,18 @@ const users = [
   }
 ];
 
-// Helper function to generate a random date within the next 7 days
+// Helper function to generate a random date within the next 6 days
 function getRandomFutureDate() {
   const today = new Date();
-  const randomDays = Math.floor(Math.random() * 7); // 0-6 days ahead
+  const randomDays = Math.floor(Math.random() * 6); // 0-6 days ahead
   const futureDate = new Date(today);
   futureDate.setDate(today.getDate() + randomDays);
   return futureDate;
 }
 
 // Helper function to generate a random seat number based on lab dimensions
-// Uses standard seat naming convention: A1, A2, B1, B2, etc.
 function getRandomSeatNumber(rows, columns) {
-  const rowNumber = Math.floor(Math.random() * rows) + 1; // 1, 2, 3, ...
+  const rowNumber = Math.floor(Math.random() * rows) + 1;
   const colNumber = Math.floor(Math.random() * columns) + 1;
   return `R${rowNumber}C${colNumber}`;
 }
@@ -132,7 +131,7 @@ async function seedUsersAndReservations() {
 
     // Create reservations
     const reservations = [];
-    const occupiedSeats = new Set(); // Track occupied seats to avoid conflicts
+    const occupiedSeats = new Map(); // Track occupied seats by lab and date
 
     // Generate 50-80 random reservations
     const numReservations = Math.floor(Math.random() * 31) + 50; // 50-80 reservations
@@ -143,24 +142,32 @@ async function seedUsersAndReservations() {
       const reservationDate = getRandomFutureDate();
       
       // Create a unique seat identifier for this date and lab
+      const dateKey = reservationDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+      const labDateKey = `${randomLab.name}-${dateKey}`;
+      
+      if (!occupiedSeats.has(labDateKey)) {
+        occupiedSeats.set(labDateKey, new Set());
+      }
+      
+      const occupiedForThisLabDate = occupiedSeats.get(labDateKey);
+      
+      // Try to find an available seat (max 20 attempts to avoid infinite loop)
       let seatNumber;
-      let seatKey;
       let attempts = 0;
       
-      // Try to find an available seat (max 10 attempts to avoid infinite loop)
       do {
         seatNumber = getRandomSeatNumber(randomLab.rows, randomLab.columns);
-        seatKey = `${randomLab.name}-${reservationDate.toDateString()}-${seatNumber}`;
         attempts++;
-      } while (occupiedSeats.has(seatKey) && attempts < 10);
+      } while (occupiedForThisLabDate.has(seatNumber) && attempts < 20);
       
-      // If we couldn't find an available seat after 10 attempts, skip this reservation
-      if (attempts >= 10) {
+      // If we couldn't find an available seat after 20 attempts, skip this reservation
+      if (attempts >= 20) {
+        console.log(`Skipping reservation for ${randomLab.name} on ${dateKey} - no available seats`);
         continue;
       }
       
       // Mark this seat as occupied
-      occupiedSeats.add(seatKey);
+      occupiedForThisLabDate.add(seatNumber);
       
       // Randomly decide if the reservation should be anonymous (20% chance)
       const isAnonymous = Math.random() < 0.2;
@@ -168,7 +175,7 @@ async function seedUsersAndReservations() {
       const reservation = {
         seatNumber: seatNumber,
         lab: randomLab.name,
-        reservedBy: randomUser.email,
+        reservedBy: randomUser.email, // Always store the actual user's email
         anonymous: isAnonymous,
         reservationDateTime: reservationDate,
       };
@@ -200,17 +207,26 @@ async function seedUsersAndReservations() {
     const anonymousCount = reservations.filter(res => res.anonymous).length;
     console.log(`\nAnonymous reservations: ${anonymousCount}`);
 
-    // Show user-specific reservation types
+    // Show user-specific reservation counts
     console.log('\nReservations by user:');
-    createdUsers.forEach(user => {
-    const email = user.email;
-    const userReservations = reservations.filter(r => r.reservedBy === email);
-    const publicCount = userReservations.length;
-    const anonCount = reservations.filter(r => r.anonymous && r.reservedBy === 'Anonymous' && r.email === email).length;
-
-    console.log(`  ${user.name}: ${publicCount} public${anonCount ? `, ${anonCount} anonymous` : ''}`);
+    const userStats = {};
+    reservations.forEach(res => {
+      const email = res.reservedBy;
+      if (!userStats[email]) {
+        userStats[email] = { total: 0, anonymous: 0 };
+      }
+      userStats[email].total++;
+      if (res.anonymous) {
+        userStats[email].anonymous++;
+      }
     });
 
+    createdUsers.forEach(user => {
+      const stats = userStats[user.email] || { total: 0, anonymous: 0 };
+      const publicCount = stats.total - stats.anonymous;
+      console.log(`  ${user.name}: ${publicCount} public${stats.anonymous > 0 ? `, ${stats.anonymous} anonymous` : ''}`);
+    });
+    
     mongoose.connection.close();
   } catch (err) {
     console.error('Error seeding users and reservations:', err);
