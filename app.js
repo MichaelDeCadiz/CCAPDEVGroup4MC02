@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const User = require('./models/User');
 const Reservation = require('./models/Reservation');
 const Lab = require('./models/lab');
+const bcrypt = require('bcrypt');
 
 const app = express();
 const port = 3000;
@@ -28,7 +29,7 @@ app.use(
   session({
     secret: "imnotsurewhatthisissupposedtodo",
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: true
   })
 );
 
@@ -238,11 +239,13 @@ app.post('/login', async (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  const user = await User.findOne({ email: email, password: password });
+  const user = await User.findOne({ email: email });
+  const matchPass = await user.comparePassword(password);
 
-  if(user){
+  if(matchPass){
     req.session.isAuth = true;
     req.session.email = email;
+    //req.session.accounttype = user.toObject().accounttype;
     res.redirect('/');
   }
   else {
