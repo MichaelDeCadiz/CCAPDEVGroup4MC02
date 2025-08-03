@@ -35,17 +35,25 @@ app.use(
 );
 
 const hbs = exphbs.create({
-  extname: '.hbs',      // Optional: specify the file extension
+  extname: '.hbs',
   helpers: {
     // Define your custom helpers here
     isEqual: function(value1, value2, options) {
-      if (value1 === value2) {
-        return options.fn(this);
-      } else {
-        return options.inverse(this);
-      }
+      return value1 === value2 ? options.fn(this) : options.inverse(this);
+    },
+    formatDate: function(date) {
+      if (!date) return '';
+      const d = new Date(date);
+      return d.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
     }
-  }
+  },
+  defaultLayout: false
 });
 
 //Checks if session is active
@@ -63,7 +71,7 @@ const upload = multer({ dest: 'public/images/uploads/' });
 
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
-app.set("views", "./views");
+app.set('views', './views');
 
 //--GET--
 
@@ -421,6 +429,63 @@ app.post('/reservations/deleteAll', isAuth, async (req, res) => {
     res.redirect('/dashboard');
   } catch (err) {
     res.status(500).send('Error deleting all reservations.');
+  }
+});
+
+// Get edit reservation page
+app.get('/reservations/edit/:id', isAuth, async (req, res) => {
+  try {
+    const reservation = await Reservation.findById(req.params.id);
+    const labs = await Lab.find({});
+    
+    if (!reservation) {
+      return res.status(404).send('Reservation not found');
+    }
+
+    // Only allow editing own reservations
+    if (reservation.reservedBy !== req.session.email) {
+      return res.redirect('/dashboard');
+    }
+
+    res.render('partials/editReservation', {
+      reservation: reservation.toObject(),
+      labs: labs.map(lab => lab.toObject()),
+      session: req.session.isAuth
+    });
+  } catch (err) {
+    console.error('Edit reservation error:', err);
+    res.status(500).send('Error loading reservation');
+  }
+});
+
+// Handle edit reservation submission
+app.post('/reservations/edit/:id', isAuth, async (req, res) => {
+  try {
+    const { lab, day, timeSlot, seatNumber } = req.body;
+    
+    // Check if new seat is available
+    const existingReservation = await Reservation.findOne({
+      lab,
+      timeSlot,
+      reservationDate: new Date(day),
+      seatNumber,
+      _id: { $ne: req.params.id }
+    });
+
+    if (existingReservation) {
+      return res.status(409).send('Selected seat is already reserved');
+    }
+
+    await Reservation.findByIdAndUpdate(req.params.id, {
+      lab,
+      reservationDate: new Date(day),
+      timeSlot,
+      seatNumber
+    });
+
+    res.redirect('/dashboard');
+  } catch (err) {
+    res.status(500).send('Error updating reservation');
   }
 });
 
