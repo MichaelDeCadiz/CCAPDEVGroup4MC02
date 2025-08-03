@@ -20,6 +20,10 @@ const reservationSchema = new mongoose.Schema({
   requestDateTime: {
     type: Date,
     default: Date.now
+  },
+  timeSlot: {
+    type: String,
+    required: true
   }
 }, { timestamps: true });
 

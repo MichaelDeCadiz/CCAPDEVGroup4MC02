@@ -225,27 +225,32 @@ app.get('/viewlabs', isAuth, async (req, res) => {
 
 // Fetch Reservation Data
 app.get('/api/reservations', isAuth, async (req, res) => {
-  const { lab, day } = req.query;
-  if (!lab || !day) return res.status(400).send('Missing lab or day.');
+  const { lab, day, timeSlot } = req.query;
+  if (!lab || !day || !timeSlot) return res.status(400).send('Missing required parameters.');
 
-  const dayStart = new Date(day);
-  const dayEnd = new Date(day);
-  dayEnd.setDate(dayEnd.getDate() + 1);
+  try {
+    const reservations = await Reservation.find({
+      lab,
+      timeSlot,
+      reservationDateTime: {
+        $gte: new Date(day),
+        $lt: new Date(new Date(day).setDate(new Date(day).getDate() + 1))
+      }
+    });
 
-  const reservations = await Reservation.find({
-    lab,
-    reservationDateTime: { $gte: dayStart, $lt: dayEnd }
-  });
+    const result = {};
+    reservations.forEach(r => {
+      result[r.seatNumber] = {
+        reservedBy: r.reservedBy,
+        anonymous: r.anonymous
+      };
+    });
 
-  const result = {};
-  reservations.forEach(r => {
-    result[r.seatNumber] = {
-      reservedBy: r.reservedBy,
-      anonymous: r.anonymous
-    };
-  });
-
-  res.json(result);
+    res.json(result);
+  } catch (err) {
+    console.error('Error fetching reservations:', err);
+    res.status(500).send('Error fetching reservations');
+  }
 });
 
 //--POST--
@@ -326,12 +331,29 @@ app.post('/updatepicture/:email', upload.single('newpfp'), async (req, res) => {
 
 // Create Reservation
 app.post('/reserve', isAuth, async (req, res) => {
-  const { lab, seats, day, anonymous } = req.body;
+  const { lab, seats, day, timeSlot, anonymous } = req.body;
   const email = req.session.email;
 
   try {
+    // Validate input
+    if (!lab || !seats || !day || !timeSlot) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
     const seatArrayRaw = Array.isArray(seats) ? seats : [seats];
     const seatArray = seatArrayRaw.filter(seat => typeof seat === 'string' && seat.trim() !== '');
+
+    // Check for existing reservations
+    const existingReservations = await Reservation.find({
+      lab,
+      timeSlot,
+      reservationDateTime: new Date(day),
+      seatNumber: { $in: seatArray }
+    });
+
+    if (existingReservations.length > 0) {
+      return res.status(409).json({ error: 'Some seats are already reserved' });
+    }
 
     const newReservations = seatArray.map(seat => ({
       seatNumber: seat,
@@ -339,15 +361,15 @@ app.post('/reserve', isAuth, async (req, res) => {
       reservationDateTime: new Date(day),
       requestDateTime: new Date(),
       reservedBy: email,
-      anonymous: String(anonymous) === 'true'
+      anonymous: String(anonymous) === 'true',
+      timeSlot
     }));
 
     await Reservation.insertMany(newReservations);
-
-    res.redirect('/dashboard');
+    res.status(200).json({ message: 'Reservation successful' });
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Error creating reservations.");
+    console.error('Reservation error:', err);
+    res.status(500).json({ error: 'Error creating reservations' });
   }
 });
 
