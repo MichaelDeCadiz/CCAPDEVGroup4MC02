@@ -1,0 +1,48 @@
+<div class="p-4" id="lab-container">
+  <div class="container">
+    <h2 class="mb-4 text-center">Edit Reservation</h2>
+
+    <form action="/reservations/edit/{{reservation._id}}" method="POST">
+      <!-- Lab Selector -->
+      <div class="mb-3">
+        <label for="labSelector" class="form-label">Select Lab:</label>
+        <select id="labSelector" name="lab" class="form-select w-auto" required>
+          {{#each labs}}
+            <option value="{{name}}" data-rows="{{rows}}" data-columns="{{columns}}" 
+              {{#if (isEqual name ../reservation.lab)}}selected{{/if}}>
+              {{name}}
+            </option>
+          {{/each}}
+        </select>
+      </div>
+
+      <!-- Day Selector -->
+      <div class="mb-3">
+        <label for="daySelector" class="form-label">Select Day:</label>
+        <select id="daySelector" name="day" class="form-select w-auto" required>
+          <!-- Will be populated by JavaScript -->
+        </select>
+      </div>
+
+      <!-- Time Slot -->
+      <div class="mb-3">
+        <label for="timeSlotSelector" class="form-label">Select Time:</label>
+        <select id="timeSlotSelector" name="timeSlot" class="form-select w-auto" required>
+          <!-- Will be populated by JavaScript -->
+        </select>
+      </div>
+
+      <!-- Seat Grid -->
+      <div id="seatGrid" class="text-center mb-4 d-flex flex-column gap-2"></div>
+
+      <input type="hidden" name="seatNumber" id="selectedSeat" value="{{reservation.seatNumber}}">
+
+      <div class="d-flex justify-content-between mt-3">
+        <a href="/dashboard" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/reservation.js"></script>
