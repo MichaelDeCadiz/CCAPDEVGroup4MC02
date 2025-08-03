@@ -1,0 +1,45 @@
+<div class="p-4" id="dashboard-container">
+    <div class="container">
+
+        <h2 class="mb-4">Technician Dashboard</h2>
+        <form class="mb-4 mt-2 d-flex" action="/search" method="GET">
+        <input type="text" class="form-control me-2" name="q" placeholder="Search for users" required>
+        <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+        <a href="/profile" class="btn btn-outline-secondary">My Profile</a>
+
+
+        <h5 class="text-muted mb-3">All Reservations</h5>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Lab</th>
+                    <th>Date</th>
+                    <th>Seat</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each reservations}}
+                <tr>
+                    <td>{{reservedBy}}</td>
+                    <td>{{lab}}</td>
+                    <td>{{reservationDateTime}}</td>
+                    <td>{{seatNumber}}
+                        {{#if anonymous}}<span class="text-muted">(Anonymous)</span>{{/if}}
+                    </td>
+                    <td>
+                        <form action="/reservations/delete/{{_id}}" method="POST" style="display:inline;">
+                            <button class="btn btn-sm btn-danger" type="submit" 
+                                {{#unless canCancel}}disabled{{/unless}}>Cancel</button>
+                        </form>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+    </div>
+</div>
