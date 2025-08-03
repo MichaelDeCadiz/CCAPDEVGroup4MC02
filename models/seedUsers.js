@@ -102,6 +102,13 @@ function getRandomSeatNumber(rows, columns) {
   return `R${rowNumber}C${colNumber}`;
 }
 
+// Helper function to get a random time slot
+function getRandomTimeSlot() {
+  const hours = Math.floor(Math.random() * (17 - 8)) + 8; // 8 AM to 4:30 PM
+  const minutes = Math.random() < 0.5 ? '00' : '30';
+  return `${String(hours).padStart(2, '0')}:${minutes}`;
+}
+
 async function seedUsersAndReservations() {
   try {
     // Clear existing data
@@ -131,7 +138,7 @@ async function seedUsersAndReservations() {
 
     // Create reservations
     const reservations = [];
-    const occupiedSeats = new Map(); // Track occupied seats by lab and date
+    const occupiedSeats = new Map(); // Track occupied seats by lab, date and timeslot
 
     // Generate 50-80 random reservations
     const numReservations = Math.floor(Math.random() * 31) + 50; // 50-80 reservations
@@ -140,16 +147,22 @@ async function seedUsersAndReservations() {
       const randomUser = createdUsers[Math.floor(Math.random() * createdUsers.length)];
       const randomLab = labs[Math.floor(Math.random() * labs.length)];
       const reservationDate = getRandomFutureDate();
+      const timeSlot = getRandomTimeSlot();
       
-      // Create a unique seat identifier for this date and lab
+      // Update the date with the time slot
+      const [hours, minutes] = timeSlot.split(':');
+      reservationDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      
+      // Create a unique key that includes the time slot
       const dateKey = reservationDate.toISOString().split('T')[0]; // YYYY-MM-DD format
-      const labDateKey = `${randomLab.name}-${dateKey}`;
+      const labDateTimeKey = `${randomLab.name}-${dateKey}-${timeSlot}`; // Include time slot in key
       
-      if (!occupiedSeats.has(labDateKey)) {
-        occupiedSeats.set(labDateKey, new Set());
+      // Initialize set for this lab-date-time combination if it doesn't exist
+      if (!occupiedSeats.has(labDateTimeKey)) {
+        occupiedSeats.set(labDateTimeKey, new Set());
       }
       
-      const occupiedForThisLabDate = occupiedSeats.get(labDateKey);
+      const occupiedForThisLabDateTime = occupiedSeats.get(labDateTimeKey);
       
       // Try to find an available seat (max 20 attempts to avoid infinite loop)
       let seatNumber;
@@ -158,7 +171,7 @@ async function seedUsersAndReservations() {
       do {
         seatNumber = getRandomSeatNumber(randomLab.rows, randomLab.columns);
         attempts++;
-      } while (occupiedForThisLabDate.has(seatNumber) && attempts < 20);
+      } while (occupiedForThisLabDateTime.has(seatNumber) && attempts < 20);
       
       // If we couldn't find an available seat after 20 attempts, skip this reservation
       if (attempts >= 20) {
@@ -167,7 +180,7 @@ async function seedUsersAndReservations() {
       }
       
       // Mark this seat as occupied
-      occupiedForThisLabDate.add(seatNumber);
+      occupiedForThisLabDateTime.add(seatNumber);
       
       // Randomly decide if the reservation should be anonymous (20% chance)
       const isAnonymous = Math.random() < 0.2;
@@ -175,9 +188,10 @@ async function seedUsersAndReservations() {
       const reservation = {
         seatNumber: seatNumber,
         lab: randomLab.name,
-        reservedBy: randomUser.email, // Always store the actual user's email
+        reservedBy: randomUser.email,
         anonymous: isAnonymous,
         reservationDateTime: reservationDate,
+        timeSlot: timeSlot  
       };
       
       reservations.push(reservation);
