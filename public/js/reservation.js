@@ -169,3 +169,16 @@ setTimeout(() => {
   loadGrid();
   populateTimeSlots();
 }, 100);
+
+const urlParams = new URLSearchParams(window.location.search);
+const editMode = window.location.pathname.includes('/edit');
+const initialSeat = document.getElementById('selectedSeat')?.value;
+
+if (editMode && initialSeat) {
+  setTimeout(() => {
+    const seatBtn = document.getElementById(initialSeat);
+    if (seatBtn) {
+      seatBtn.click();
+    }
+  }, 200);
+}
