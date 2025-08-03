@@ -140,8 +140,6 @@ app.get('/profile', isAuth, async (req, res) => {
     }
 });
 
-
-
 // View Public User Profile
 app.get('/profile/:email', isAuth, async (req, res) => {
   try {
@@ -162,14 +160,30 @@ app.get('/profile/:email', isAuth, async (req, res) => {
   }
 });
 
-
-//Dashboard Page
+//Dashboard Page (with conditional route rendering based on user account type)
 app.get('/dashboard', isAuth, async (req, res) => {
   try {
     const email = req.session.email;
-    const reservations = await Reservation.find({ reservedBy: email }).lean();
+    const user = await User.findOne({ email });
 
-    res.render('partials/dashboard', { session: req.session.isAuth, reservations });
+    let reservations;
+    let template = 'partials/dashboard';
+
+    if (user.accounttype === 'technician') {
+      reservations = await Reservation.find({}).lean();
+      template = 'partials/dashboard_tech';
+
+      const now = new Date();
+      reservations.forEach(r => {
+        const resTime = new Date(r.reservationDateTime);
+        r.canCancel = now > new Date(resTime.getTime() + 10 * 60000);
+      });
+
+    } else {
+      reservations = await Reservation.find({ reservedBy: email }).lean();
+    }
+
+    res.render(template, { session: req.session.isAuth, reservations });
   } catch (err) {
     res.status(500).send("Error");
   }
@@ -210,13 +224,17 @@ app.get('/search', isAuth, async (req, res) => {
   }
 });
 
-
-//Labs Page
+//Labs Page (with conditional route rendering based on user account type)
 app.get('/viewlabs', isAuth, async (req, res) => {
   try {
     const labs = await Lab.find({}).lean();
-    console.log('Labs being sent to template:', labs);
-    res.render('partials/lab', { labs: labs, session: req.session.isAuth });
+    const user = await User.findOne({ email: req.session.email });
+
+    const template = user.accounttype === 'technician' 
+      ? 'partials/lab_tech' 
+      : 'partials/lab';
+
+    res.render(template, { labs: labs, session: req.session.isAuth });
   } catch (err) {
     console.error('Error loading labs:', err);
     res.status(500).send("Error loading labs");
