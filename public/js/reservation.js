@@ -105,32 +105,41 @@ async function loadGrid() {
 }
 
 async function reserveSeats(anonymous = false) {
-  const lab = labSelector.value;
-  const day = daySelector.value;
-  const timeSlot = timeSlotSelector.value;
-  const seats = Array.from(document.querySelectorAll('.btn-primary')).map(btn => btn.id);
+  try {
+    const lab = labSelector.value;
+    const day = daySelector.value;
+    const timeSlot = timeSlotSelector.value;
+    const seats = Array.from(document.querySelectorAll('.btn-primary')).map(btn => btn.id);
 
-  if (seats.length === 0) return alert('No seats selected!');
+    if (seats.length === 0) {
+      alert('No seats selected!');
+      return;
+    }
 
-  const formData = new URLSearchParams();
-  formData.append('lab', lab);
-  formData.append('day', day);
-  formData.append('timeSlot', timeSlot);
-  formData.append('anonymous', anonymous);
+    const formData = new URLSearchParams();
+    formData.append('lab', lab);
+    formData.append('day', day);
+    formData.append('timeSlot', timeSlot);
+    formData.append('anonymous', anonymous);
+    seats.forEach(seat => formData.append('seats[]', seat)); // Append each seat as an array item
 
-  seats.forEach(seat => formData.append('seats', seat));
+    const response = await fetch('/reserve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData.toString()
+    });
 
-  const response = await fetch('/reserve', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: formData.toString()
-  });
+    const result = await response.json();
 
-  if (response.ok) {
-    alert('Reservation successful!');
-    loadGrid();
-  } else {
-    alert('Error reserving seats.');
+    if (response.ok) {
+      alert(result.message || 'Reservation successful!');
+      await loadGrid(); // Refresh the grid
+    } else {
+      alert(result.error || 'Error reserving seats.');
+    }
+  } catch (err) {
+    console.error('Reservation error:', err);
+    alert('Error making reservation. Please try again.');
   }
 }
 

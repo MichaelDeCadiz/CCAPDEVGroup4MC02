@@ -14,7 +14,7 @@ const reservationSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  reservationDateTime: {
+  reservationdate: {
     type: Date,
   },
   requestDateTime: {
@@ -23,7 +23,6 @@ const reservationSchema = new mongoose.Schema({
   },
   timeSlot: {
     type: String,
-    required: true
   }
 }, { timestamps: true });
 

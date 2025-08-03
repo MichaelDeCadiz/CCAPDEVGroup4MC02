@@ -232,7 +232,7 @@ app.get('/api/reservations', isAuth, async (req, res) => {
     const reservations = await Reservation.find({
       lab,
       timeSlot,
-      reservationDateTime: {
+      reservationdate: {
         $gte: new Date(day),
         $lt: new Date(new Date(day).setDate(new Date(day).getDate() + 1))
       }
@@ -347,7 +347,7 @@ app.post('/reserve', isAuth, async (req, res) => {
     const existingReservations = await Reservation.find({
       lab,
       timeSlot,
-      reservationDateTime: new Date(day),
+      reservationdate: new Date(day),
       seatNumber: { $in: seatArray }
     });
 
@@ -358,7 +358,7 @@ app.post('/reserve', isAuth, async (req, res) => {
     const newReservations = seatArray.map(seat => ({
       seatNumber: seat,
       lab,
-      reservationDateTime: new Date(day),
+      reservationdate: new Date(day),
       requestDateTime: new Date(),
       reservedBy: email,
       anonymous: String(anonymous) === 'true',

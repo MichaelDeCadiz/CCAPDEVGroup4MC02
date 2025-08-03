@@ -190,7 +190,7 @@ async function seedUsersAndReservations() {
         lab: randomLab.name,
         reservedBy: randomUser.email,
         anonymous: isAnonymous,
-        reservationDateTime: reservationDate,
+        reservationdate: reservationDate,
         timeSlot: timeSlot  
       };
       
