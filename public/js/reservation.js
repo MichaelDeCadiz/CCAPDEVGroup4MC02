@@ -5,6 +5,15 @@ const reserveBtn = document.getElementById('reserveBtn');
 const reserveAnonBtn = document.getElementById('reserveAnonBtn');
 const clearReservationsBtn = document.getElementById('clearReservationsBtn');
 
+// timeslot selector
+const timeSlotSelector = document.createElement('select');
+timeSlotSelector.id = 'timeSlotSelector';
+timeSlotSelector.className = 'form-select';
+daySelector.parentNode.insertBefore(timeSlotSelector, daySelector.nextSibling);
+
+timeSlotSelector.style.width = 'auto';
+timeSlotSelector.style.minWidth = '100px';
+
 // Populate next 7 days
 const today = new Date();
 for (let i = 0; i < 7; i++) {
@@ -19,8 +28,31 @@ for (let i = 0; i < 7; i++) {
   daySelector.appendChild(option);
 }
 
+function populateTimeSlots() {
+  timeSlotSelector.innerHTML = '';
+  // Assuming lab hours are from 8 AM to 5 PM
+  const startHour = 8;
+  const endHour = 17;
+  
+  for (let hour = startHour; hour < endHour; hour++) {
+    // Create two 30-minute slots for each hour
+    for (let minutes of ['00', '30']) {
+      const timeValue = `${String(hour).padStart(2, '0')}:${minutes}`; // Keep 24hr format for value
+      const displayHour = hour > 12 ? hour - 12 : hour;
+      const period = hour >= 12 ? 'PM' : 'AM';
+      const displayTime = `${displayHour}:${minutes} ${period}`; // 12hr format for display
+      
+      const option = document.createElement('option');
+      option.value = timeValue; // Keep 24hr format for backend
+      option.textContent = displayTime; // Show 12hr format to user
+      timeSlotSelector.appendChild(option);
+    }
+  }
+}
+
 async function fetchReservations(lab, day) {
-  const response = await fetch(`/api/reservations?lab=${lab}&day=${day}`);
+  const timeSlot = timeSlotSelector.value;
+  const response = await fetch(`/api/reservations?lab=${lab}&day=${day}&timeSlot=${timeSlot}`);
   if (!response.ok) return {};
   return await response.json(); // returns { seatNumber: { reservedBy, anonymous } }
 }
@@ -75,6 +107,7 @@ async function loadGrid() {
 async function reserveSeats(anonymous = false) {
   const lab = labSelector.value;
   const day = daySelector.value;
+  const timeSlot = timeSlotSelector.value;
   const seats = Array.from(document.querySelectorAll('.btn-primary')).map(btn => btn.id);
 
   if (seats.length === 0) return alert('No seats selected!');
@@ -82,6 +115,7 @@ async function reserveSeats(anonymous = false) {
   const formData = new URLSearchParams();
   formData.append('lab', lab);
   formData.append('day', day);
+  formData.append('timeSlot', timeSlot);
   formData.append('anonymous', anonymous);
 
   seats.forEach(seat => formData.append('seats', seat));
@@ -121,4 +155,8 @@ clearReservationsBtn.onclick = () => {
 
 labSelector.onchange = loadGrid;
 daySelector.onchange = loadGrid;
-setTimeout(loadGrid, 100);
+timeSlotSelector.onchange = loadGrid;
+setTimeout(() => {
+  loadGrid();
+  populateTimeSlots();
+}, 100);
