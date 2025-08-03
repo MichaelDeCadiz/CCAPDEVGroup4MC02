@@ -14,3 +14,8 @@
 .nav-link {
   color: white;
 }
+
+.error {
+  color: red;
+  font-size: small;
+}

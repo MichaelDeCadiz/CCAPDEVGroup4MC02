@@ -7,6 +7,7 @@ const User = require('./models/User');
 const Reservation = require('./models/Reservation');
 const Lab = require('./models/lab');
 const bcrypt = require('bcrypt');
+const multer  = require('multer');
 
 const app = express();
 const port = 3000;
@@ -55,7 +56,10 @@ const isAuth = (req, res, next) => {
   else {
     res.redirect('/login');
   }
-}
+};
+
+//Destination for uploaded images
+const upload = multer({ dest: 'public/images/uploads/' });
 
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
@@ -71,10 +75,16 @@ app.get('/', (req, res) => {
 //Login Page
 app.get('/login', async (req, res) => {
   try {
+    let errorMessage = ' ';
+
+    if (req.query.error === 'invalid_credentials') {
+      errorMessage = 'Incorrect email or password.';
+    }
+
     if(req.session.isAuth)
       res.redirect('/');
     else
-      res.render('partials/login', { session: req.session.isAuth });
+      res.render('partials/login', { error: errorMessage });
   } catch (err) {
     res.status(500).send("Error");
   }
@@ -83,10 +93,16 @@ app.get('/login', async (req, res) => {
 //Register Page
 app.get('/register', async (req, res) => {
   try {
+    let errorMessage = ' ';
+
+    if (req.query.error === 'existing_email') {
+      errorMessage = 'An account with this email already exists.';
+    }
+
     if(req.session.isAuth)
       res.redirect('/');
     else
-      res.render('partials/register', { session: req.session.isAuth });
+      res.render('partials/register', { error: errorMessage });
   } catch (err) {
     res.status(500).send("Error");
   }
@@ -240,17 +256,21 @@ app.post('/login', async (req, res) => {
   const password = req.body.password;
 
   const user = await User.findOne({ email: email });
-  const matchPass = await user.comparePassword(password);
 
-  if(matchPass){
+  if(user) {
+    const matchPass = await user.comparePassword(password);
+
+    if(matchPass){
     req.session.isAuth = true;
     req.session.email = email;
     //req.session.accounttype = user.toObject().accounttype;
     res.redirect('/');
+    }
+    else
+      res.redirect('/login?error=invalid_credentials');
   }
-  else {
-    res.redirect('/login');
-  }
+  else
+    res.redirect('/login?error=invalid_credentials');
 });
 
 //Register New User
@@ -260,7 +280,7 @@ app.post('/register', async (req, res) => {
   const user = await User.findOne({ email: email });
 
   if(user){
-    res.redirect('/register');
+    res.redirect('/register?error=existing_email');
   }
   else{
     const newUser = new User(formData);
@@ -290,6 +310,16 @@ app.post('/updatedescription/:email', async (req, res) => {
   const newdescription = req.body.newdescription;
 
   await User.findOneAndUpdate({ email: email }, { description: newdescription });
+
+  res.redirect("/profile");
+});
+
+//Update User Profile Picture
+app.post('/updatepicture/:email', upload.single('newpfp'), async (req, res) => {
+  const email = req.params.email;
+  const newPicture = "/images/uploads/" + req.file.filename;
+
+  await User.findOneAndUpdate({ email: email }, { profileImage: newPicture });
 
   res.redirect("/profile");
 });
