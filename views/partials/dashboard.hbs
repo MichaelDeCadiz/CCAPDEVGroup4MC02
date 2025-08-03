@@ -16,6 +16,7 @@
                 <tr>
                     <th>Lab</th>
                     <th>Date</th>
+                    <th>Time Slot</th>
                     <th>Seat</th>
                     <th>Actions</th>
                 </tr>
@@ -24,7 +25,9 @@
                 {{#each reservations}}
                 <tr>
                     <td>{{lab}}</td>
-                    <td>{{reservationDateTime}}</td>
+                    <td>{{reservationDate}}</td>
+                    <td>{{timeSlot}}</td>
+                    <td>{{requestDateTime}}</td>
                     <td>{{seatNumber}}
                         {{#if anonymous}}<span class="text-muted">(Anonymous)</span>{{/if}}
                     </td>

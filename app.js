@@ -175,7 +175,7 @@ app.get('/dashboard', isAuth, async (req, res) => {
 
       const now = new Date();
       reservations.forEach(r => {
-        const resTime = new Date(r.reservationDateTime);
+        const resTime = new Date(r.reservationDate);
         r.canCancel = now > new Date(resTime.getTime() + 10 * 60000);
       });
 
@@ -250,7 +250,7 @@ app.get('/api/reservations', isAuth, async (req, res) => {
     const reservations = await Reservation.find({
       lab,
       timeSlot,
-      reservationdate: {
+      reservationDate: {
         $gte: new Date(day),
         $lt: new Date(new Date(day).setDate(new Date(day).getDate() + 1))
       }
@@ -365,7 +365,7 @@ app.post('/reserve', isAuth, async (req, res) => {
     const existingReservations = await Reservation.find({
       lab,
       timeSlot,
-      reservationdate: new Date(day),
+      reservationDate: new Date(day),
       seatNumber: { $in: seatArray }
     });
 
@@ -376,7 +376,7 @@ app.post('/reserve', isAuth, async (req, res) => {
     const newReservations = seatArray.map(seat => ({
       seatNumber: seat,
       lab,
-      reservationdate: new Date(day),
+      reservationDate: new Date(day),
       requestDateTime: new Date(),
       reservedBy: email,
       anonymous: String(anonymous) === 'true',

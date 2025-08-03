@@ -14,7 +14,7 @@ const reservationSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  reservationdate: {
+  reservationDate: {
     type: Date,
   },
   requestDateTime: {
