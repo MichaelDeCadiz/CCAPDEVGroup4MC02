@@ -352,7 +352,6 @@ app.post('/reserve', isAuth, async (req, res) => {
   const email = req.session.email;
 
   try {
-    // Validate input
     if (!lab || !seats || !day || !timeSlot) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
@@ -360,7 +359,6 @@ app.post('/reserve', isAuth, async (req, res) => {
     const seatArrayRaw = Array.isArray(seats) ? seats : [seats];
     const seatArray = seatArrayRaw.filter(seat => typeof seat === 'string' && seat.trim() !== '');
 
-    // Check for existing reservations
     const existingReservations = await Reservation.find({
       lab,
       timeSlot,
@@ -401,7 +399,6 @@ app.post('/reservations/delete/:id', isAuth, async (req, res) => {
 
     if (!reservation) return res.status(404).send('Reservation not found.');
 
-    // Only allow deletion if the user owns it
     if (reservation.reservedBy !== email) return res.status(403).send('Unauthorized.');
 
     await Reservation.findByIdAndDelete(reservationId);
